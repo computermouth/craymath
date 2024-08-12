@@ -15,6 +15,35 @@ impl From<[f32; 3]> for Vector2 {
         Vector2{x: f[0], y: f[1]}
     }
 }
+
+// todo -- deleteme
+impl From<[f32; 5]> for Vector3 {
+    fn from(f: [f32; 5]) -> Self {
+        Vector3{x: f[0], y: f[1], z: f[2]}
+    }
+}
+
+// todo -- deleteme
+impl From<[f32; 16]> for Vector3 {
+    fn from(f: [f32; 16]) -> Self {
+        Vector3{x: f[0], y: f[1], z: f[2]}
+    }
+}
+
+// todo -- deleteme
+impl From<[f32; 5]> for Quaternion {
+    fn from(f: [f32; 5]) -> Self {
+        Quaternion{x: f[0], y: f[1], z: f[2], w: f[3]}
+    }
+}
+
+// todo -- deleteme
+impl From<[f32; 16]> for Quaternion {
+    fn from(f: [f32; 16]) -> Self {
+        Quaternion{x: f[0], y: f[1], z: f[2], w: f[3]}
+    }
+}
+
 #[test]
 fn bindgen_test_layout_Vector2() {
     const UNINIT: ::std::mem::MaybeUninit<Vector2> = ::std::mem::MaybeUninit::uninit();
@@ -173,7 +202,7 @@ fn bindgen_test_layout_Vector4() {
 }
 pub type Quaternion = Vector4;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Matrix {
     pub m0: f32,
     pub m4: f32,

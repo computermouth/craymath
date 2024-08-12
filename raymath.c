@@ -2,6 +2,9 @@
 #include "raymath.h"
 #include <math.h>       // Required for: sinf(), cosf(), tan(), atan2f(), sqrtf(), floor(), fminf(), fmaxf(), fabsf()
 
+#define PI 3.14159265358979323846264338327950288
+#define EPSILON 1.1920929E-7f32
+
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Utils math
 //----------------------------------------------------------------------------------
@@ -51,9 +54,6 @@ float Wrap(float value, float min, float max)
 // Check whether two given floats are almost equal
 int FloatEquals(float x, float y)
 {
-#if !defined(EPSILON)
-    #define EPSILON 0.000001f
-#endif
 
     int result = (fabsf(x - y)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))));
 
