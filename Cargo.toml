@@ -1,0 +1,11 @@
+[package]
+name = "craymath"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand = "0.8.5"
+raymath = { path = "../niveluno/raymath" }
+
+[build-dependencies]
+bindgen = "0.65.1"
