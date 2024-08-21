@@ -2,13 +2,16 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-mod bindings;
+mod middleware;
 #[allow(unused_imports)]
-use bindings as craymath;
+use middleware as craymath;
 #[allow(unused_imports)]
 use raymath;
 
-const ITERATIONS: usize = 40000000;
+const ITERATIONS: usize = 10000000;
+const ITER_DIV: usize =   1000;
+// const ITERATIONS: usize = 10000;
+// const ITER_DIV: usize =   100;
 
 impl PartialEq<craymath::Matrix> for raymath::Matrix {
     fn eq(&self, other: &craymath::Matrix) -> bool {
@@ -86,10 +89,70 @@ impl PartialEq<raymath::Vector3> for craymath::Vector3 {
     }
 }
 
+impl PartialEq<raymath::Vector2> for craymath::Vector2 {
+    fn eq(&self, other: &raymath::Vector2) -> bool {
+        ((self.x.is_nan() && other.x.is_nan()) || self.x == other.x ) &&
+        ((self.y.is_nan() && other.y.is_nan()) || self.y == other.y )
+    }
+}
+
+impl PartialEq<craymath::Vector2> for raymath::Vector2 {
+    fn eq(&self, other: &craymath::Vector2) -> bool {
+        ((self.x.is_nan() && other.x.is_nan()) || self.x == other.x ) &&
+        ((self.y.is_nan() && other.y.is_nan()) || self.y == other.y )
+    }
+}
+
+impl PartialEq<craymath::Rectangle> for raymath::Rectangle {
+    fn eq(&self, other: &craymath::Rectangle) -> bool {
+        ((self.x.is_nan() && other.x.is_nan()) || self.x == other.x ) &&
+        ((self.y.is_nan() && other.y.is_nan()) || self.y == other.y ) &&
+        ((self.width.is_nan() && other.width.is_nan()) || self.width == other.width ) &&
+        ((self.height.is_nan() && other.height.is_nan()) || self.height == other.height )
+    }
+}
+
+
+impl PartialEq<raymath::Rectangle> for craymath::Rectangle {
+    fn eq(&self, other: &raymath::Rectangle) -> bool {
+        ((self.x.is_nan() && other.x.is_nan()) || self.x == other.x ) &&
+        ((self.y.is_nan() && other.y.is_nan()) || self.y == other.y ) &&
+        ((self.width.is_nan() && other.width.is_nan()) || self.width == other.width ) &&
+        ((self.height.is_nan() && other.height.is_nan()) || self.height == other.height )
+    }
+}
+
+impl PartialEq<craymath::Ray> for raymath::Ray {
+    fn eq(&self, other: &craymath::Ray) -> bool {
+        self.position == other.position && self.direction == other.direction
+    }
+}
+
+impl PartialEq<raymath::Ray> for craymath::Ray {
+    fn eq(&self, other: &raymath::Ray) -> bool {
+        self.position == other.position && self.direction == other.direction
+    }
+}
+
+impl PartialEq<craymath::RayCollision> for raymath::RayCollision {
+    fn eq(&self, other: &craymath::RayCollision) -> bool {
+        self.hit == other.hit && self.distance == other.distance &&
+        self.point == other.point && self.normal == other.normal
+    }
+}
+
+impl PartialEq<raymath::RayCollision> for craymath::RayCollision {
+    fn eq(&self, other: &raymath::RayCollision) -> bool {
+        self.hit == other.hit &&
+        ( self.distance.is_nan() && other.distance.is_nan() ) || self.distance == other.distance &&
+        self.point == other.point && self.normal == other.normal
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bindings::{Vector4, Vector4Zero};
+    // use bindings::{Vector4, Vector4Zero};
     use rand::prelude::*;
 
     fn gen_vec3s() -> Vec<[f32;3]> {
@@ -111,6 +174,70 @@ mod tests {
             let y: f32 = i as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
             let z: f32 = i as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
             out.push([x,y,z]);
+        }
+
+        out
+    }
+
+    fn gen_vec2_vecs() -> Vec<raymath::Vector2> {
+        let mut out = vec![
+            [0.,0.,0.].into(),
+            [0.,0.,0.].into(),
+            [1.,1.,1.].into(),
+            [1.,1.,1.].into(),
+            [1.,1.,1.].into(),
+            [0.,0.,0.].into(),
+            [0.,0.,0.].into(),
+            [1.,1.,1.].into()
+        ];
+        let mut rng = rand::thread_rng();
+
+        for _ in 0..ITERATIONS {
+            let i: i32 = rng.gen();
+            let x: f32 = i as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let y: f32 = i as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let z: f32 = i as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            out.push([x,y,z].into());
+        }
+
+        out
+    }
+
+    fn gen_vec3_vecs() -> Vec<[raymath::Vector3;3]> {
+        let mut out: Vec<[raymath::Vector3;3]> = vec![
+            [
+                [0.,0.,0.].into(),
+                [0.,0.,0.].into(),
+                [0.,0.,0.].into(),
+            ],
+            [
+                [1.,1.,1.].into(),
+                [1.,1.,1.].into(),
+                [1.,1.,1.].into(),
+            ],
+        ];
+        let mut rng = rand::thread_rng();
+
+        for _ in 0..ITERATIONS {
+            let i1: i32 = rng.gen();
+            let x1: f32 = i1 as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let y1: f32 = i1 as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let z1: f32 = i1 as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let i2: i32 = rng.gen();
+            let x2: f32 = i2 as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let y2: f32 = i2 as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let z2: f32 = i2 as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let i3: i32 = rng.gen();
+            let x3: f32 = i3 as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let y3: f32 = i3 as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            let z3: f32 = i3 as f32 * rng.gen::<f32>(); // generates a float between 0 and 1
+            out.push(
+                [
+                    [x1,y1,z1].into(),
+                    [x2,y2,z2].into(),
+                    [x3,y3,z3].into(),
+                ]
+            );
         }
 
         out
@@ -1854,5 +1981,231 @@ fn matrix_decompose() {
         assert_eq!(s1, s2);
     }
 }
+
+
+#[test]
+fn check_collision_recs() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(2) {
+        let cres = unsafe {craymath::CheckCollisionRecs(input[0].into(), input[1].into())};
+        let rres = raymath::check_collision_recs(input[0].into(), input[1].into());
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_circles() {
+    let v3 = gen_vec3s();
+    for input in v3.chunks(2) {
+        let cres = unsafe {craymath::CheckCollisionCircles(input[0].into(), input[0][2], input[1].into(), input[1][2])};
+        let rres = raymath::check_collision_circles(input[0].into(), input[0][2], input[1].into(), input[1][2]);
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_circle_rec() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(2) {
+        let cres = unsafe {craymath::CheckCollisionCircleRec(input[0].into(), input[0][2], input[1].into())};
+        let rres = raymath::check_collision_circle_rec(input[0].into(), input[0][2], input[1].into());
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_point_rec() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(2) {
+        let cres = unsafe {craymath::CheckCollisionPointRec(input[0].into(), input[1].into())};
+        let rres = raymath::check_collision_point_rec(input[0].into(), input[1].into());
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_point_circle() {
+    let v3 = gen_vec3s();
+    for input in v3.chunks(2) {
+        let cres = unsafe {craymath::CheckCollisionPointCircle(input[0].into(), input[1].into(), input[1][2])};
+        let rres = raymath::check_collision_point_circle(input[0].into(), input[1].into(), input[1][2]);
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_point_triangle() {
+    let v3 = gen_vec3s();
+    for input in v3.chunks(4) {
+        let cres = unsafe {craymath::CheckCollisionPointTriangle(input[0].into(), input[1].into(), input[2].into(), input[3].into())};
+        let rres = raymath::check_collision_point_triangle(input[0].into(), input[1].into(), input[2].into(), input[3].into());
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_point_poly() {
+    let mut points = gen_vec3s();
+    points.truncate(ITERATIONS / ITER_DIV);
+
+    for point in points {
+        let mut poly = gen_vec2_vecs();
+        poly.truncate(ITERATIONS / ITER_DIV);
+        let mut cpoly = vec![];
+        for i in &poly {
+            cpoly.push(craymath::Vector2{x: i.x, y: i.y});
+        }
+        let cres = unsafe {craymath::CheckCollisionPointPoly(point.into(), cpoly.as_mut_ptr(), poly.len() as i32)};
+        let rres = raymath::check_collision_point_poly(point.into(), poly);
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_lines() {
+    let v3 = gen_vec3s();
+    for input in v3.chunks(4) {
+        let mut cres2 = craymath::Vector2 {x: 0., y: 0.};
+        let cres = unsafe {craymath::CheckCollisionLines(input[0].into(), input[1].into(), input[2].into(), input[3].into(), &mut cres2)};
+        let rres = raymath::check_collision_lines(input[0].into(), input[1].into(), input[2].into(), input[3].into());
+
+        match rres {
+            None => assert!(cres == false),
+            Some(rres) => assert_eq!(cres2, rres),
+        }
+    }
+}
+
+#[test]
+fn check_collision_point_line() {
+    let v3 = gen_vec3s();
+    for input in v3.chunks(3) {
+        let mut threshold: i32 = rand::thread_rng().gen();
+        if threshold < 0 {
+            threshold = -threshold;
+        }
+        let cres = unsafe {craymath::CheckCollisionPointLine(input[0].into(), input[1].into(), input[2].into(), threshold as i32)};
+        let rres = raymath::check_collision_point_line(input[0].into(), input[1].into(), input[2].into(), threshold as usize);
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_circle_line() {
+    let v3 = gen_vec3s();
+    for input in v3.chunks(3) {
+        let cres = unsafe {craymath::CheckCollisionCircleLine(input[0].into(), input[0][2], input[1].into(), input[2].into())};
+        let rres = raymath::check_collision_circle_line(input[0].into(), input[0][2], input[1].into(), input[2].into());
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn get_collision_rec() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(2) {
+        let cres = unsafe {craymath::GetCollisionRec(input[0].into(), input[1].into())};
+        let rres = raymath::get_collision_rec(input[0].into(), input[1].into());
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_spheres() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(2) {
+        let cres = unsafe {craymath::CheckCollisionSpheres(input[0].into(), input[0][3], input[1].into(), input[1][3])};
+        let rres = raymath::check_collision_spheres(input[0].into(), input[0][3], input[1].into(), input[1][3]);
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_boxes() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(4) {
+        let cres = unsafe {craymath::CheckCollisionBoxes(craymath::BoundingBox { min: input[0].into(), max: input[1].into() }, craymath::BoundingBox { min: input[2].into(), max: input[3].into() })};
+        let rres = raymath::check_collision_boxes(raymath::BoundingBox { min: input[0].into(), max: input[1].into() }, raymath::BoundingBox { min: input[2].into(), max: input[3].into() });
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn check_collision_box_sphere() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(4) {
+        let cres = unsafe {craymath::CheckCollisionBoxSphere(craymath::BoundingBox { min: input[0].into(), max: input[1].into() }, input[2].into(), input[3][0] )};
+        let rres = raymath::check_collision_box_sphere(raymath::BoundingBox { min: input[0].into(), max: input[1].into() }, input[2].into(), input[3][0] );
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn get_ray_collision_sphere() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(4) {
+        let cres = unsafe {craymath::GetRayCollisionSphere(craymath::Ray { position: input[0].into(), direction: input[1].into() }, input[2].into(), input[3][0] )};
+        let rres = raymath::get_ray_collision_sphere(raymath::Ray { position: input[0].into(), direction: input[1].into() }, input[2].into(), input[3][0] );
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn get_ray_collision_box() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(4) {
+        let cres = unsafe {craymath::GetRayCollisionBox(craymath::Ray { position: input[0].into(), direction: input[1].into() }, craymath::BoundingBox { min: input[2].into(), max: input[3].into() } )};
+        let rres = raymath::get_ray_collision_box(raymath::Ray { position: input[0].into(), direction: input[1].into() }, raymath::BoundingBox { min: input[2].into(), max: input[3].into() } );
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn get_ray_collision_triangle() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(10) {
+        let cres = unsafe {craymath::GetRayCollisionTriangle(craymath::Ray { position: input[0].into(), direction: input[1].into() }, input[2].into(), input[3].into(), input[4].into() )};
+        let rres = raymath::get_ray_collision_triangle(raymath::Ray { position: input[0].into(), direction: input[1].into() }, input[2].into(), input[3].into(), input[4].into() );
+        assert_eq!(cres, rres);
+    }
+}
+
+#[test]
+fn get_ray_collision_quad() {
+    let v3 = gen_vec5s();
+    for input in v3.chunks(6) {
+        let cres = unsafe {craymath::GetRayCollisionQuad(craymath::Ray { position: input[0].into(), direction: input[1].into() }, input[2].into(), input[3].into(), input[4].into(), input[5].into() )};
+        let rres = raymath::get_ray_collision_quad(raymath::Ray { position: input[0].into(), direction: input[1].into() }, input[2].into(), input[3].into(), input[4].into(), input[5].into() );
+        assert_eq!(cres, rres);
+    }
+}
+
+// #[test]
+// fn get_ray_collision_mesh() {
+//     let v3 = gen_vec5s();
+//     let mats = gen_vec16s();
+
+//     for (i, v) in v3.chunks(2).enumerate() {
+
+//         let mut poly = gen_vec3_vecs();
+//         poly.truncate(ITERATIONS / ITER_DIV);
+//         let mut cpoly = vec![];
+//         for i in &poly {
+//             cpoly.push(craymath::Vector3{x: i[0].x, y: i[1].y, z: i[2].z});
+//             cpoly.push(craymath::Vector3{x: i[0].x, y: i[1].y, z: i[2].z});
+//             cpoly.push(craymath::Vector3{x: i[0].x, y: i[1].y, z: i[2].z});
+//         }
+
+//         let cres = unsafe {craymath::GetRayCollisionMesh(craymath::Ray { position: v[0].into(), direction: v[1].into() }, cpoly.as_mut_ptr(), cpoly.len() as u32, mats[i].into() )};
+//         let rres = raymath::get_ray_collision_mesh(raymath::Ray { position: v[0].into(), direction: v[1].into() }, poly, mats[i].into() );
+//         assert_eq!(cres, rres);
+//     }
+// }
+
+
+// RayCollision GetRayCollisionMesh(Ray ray, Vector3 * mesh, unsigned int mesh_len, Matrix transform);                       // Get collision info between ray and mesh
+
+
+
 
 }

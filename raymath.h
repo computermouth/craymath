@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------
 #define PI 3.14159265358979323846264338327950288
 
-#define EPSILON 1.1920929E-7f32
+#define EPSILON 1.1920929E-7f
 
 #ifndef DEG2RAD
     #define DEG2RAD (PI/180.0f)
@@ -229,6 +229,56 @@ Vector3 QuaternionToEuler(Quaternion q)                                         
 Quaternion QuaternionTransform(Quaternion q, Matrix mat)                                                                               ;
 int QuaternionEquals(Quaternion p, Quaternion q)                                                                                       ;
 void MatrixDecompose(Matrix mat, Vector3 *translation, Quaternion *rotation, Vector3 *scale)                                           ;
+
+
+// Ray, ray for raycasting
+typedef struct Ray {
+    Vector3 position;       // Ray position (origin)
+    Vector3 direction;      // Ray direction (normalized)
+} Ray;
+
+// RayCollision, ray hit information
+typedef struct RayCollision {
+    bool hit;               // Did the ray hit something?
+    float distance;         // Distance to the nearest hit
+    Vector3 point;          // Point of the nearest hit
+    Vector3 normal;         // Surface normal of hit
+} RayCollision;
+
+// BoundingBox
+typedef struct BoundingBox {
+    Vector3 min;            // Minimum vertex box-corner
+    Vector3 max;            // Maximum vertex box-corner
+} BoundingBox;
+
+// Rectangle, 4 components
+typedef struct Rectangle {
+    float x;                // Rectangle top-left corner position x
+    float y;                // Rectangle top-left corner position y
+    float width;            // Rectangle width
+    float height;           // Rectangle height
+} Rectangle;
+
+bool CheckCollisionRecs(Rectangle rec1, Rectangle rec2);                                           // Check collision between two rectangles
+bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, float radius2);        // Check collision between two circles
+bool CheckCollisionCircleRec(Vector2 center, float radius, Rectangle rec);                         // Check collision between circle and rectangle
+bool CheckCollisionPointRec(Vector2 point, Rectangle rec);                                         // Check if point is inside rectangle
+bool CheckCollisionPointCircle(Vector2 point, Vector2 center, float radius);                       // Check if point is inside circle
+bool CheckCollisionPointTriangle(Vector2 point, Vector2 p1, Vector2 p2, Vector2 p3);               // Check if point is inside a triangle
+bool CheckCollisionPointPoly(Vector2 point, const Vector2 *points, int pointCount);                // Check if point is within a polygon described by array of vertices
+bool CheckCollisionLines(Vector2 startPos1, Vector2 endPos1, Vector2 startPos2, Vector2 endPos2, Vector2 *collisionPoint); // Check the collision between two lines defined by two points each, returns collision point by reference
+bool CheckCollisionPointLine(Vector2 point, Vector2 p1, Vector2 p2, int threshold);                // Check if point belongs to line created between two points [p1] and [p2] with defined margin in pixels [threshold]
+bool CheckCollisionCircleLine(Vector2 center, float radius, Vector2 p1, Vector2 p2);               // Check if circle collides with a line created betweeen two points [p1] and [p2]
+Rectangle GetCollisionRec(Rectangle rec1, Rectangle rec2);  
+
+bool CheckCollisionSpheres(Vector3 center1, float radius1, Vector3 center2, float radius2);   // Check collision between two spheres
+bool CheckCollisionBoxes(BoundingBox box1, BoundingBox box2);                                 // Check collision between two bounding boxes
+bool CheckCollisionBoxSphere(BoundingBox box, Vector3 center, float radius);                  // Check collision between box and sphere
+RayCollision GetRayCollisionSphere(Ray ray, Vector3 center, float radius);                    // Get collision info between ray and sphere
+RayCollision GetRayCollisionBox(Ray ray, BoundingBox box);                                    // Get collision info between ray and box
+RayCollision GetRayCollisionMesh(Ray ray, Vector3 * mesh, unsigned int mesh_len, Matrix transform);                       // Get collision info between ray and mesh
+RayCollision GetRayCollisionTriangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3);            // Get collision info between ray and triangle
+RayCollision GetRayCollisionQuad(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4);    // Get collision info between ray and quad
 
 
 #endif
