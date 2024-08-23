@@ -9,7 +9,7 @@ use middleware as craymath;
 use raymath;
 
 const ITERATIONS: usize = 10000000;
-const ITER_DIV: usize =   1000;
+const ITER_DIV: usize =   200000;
 // const ITERATIONS: usize = 10000;
 // const ITER_DIV: usize =   100;
 
