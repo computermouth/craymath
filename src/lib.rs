@@ -2180,27 +2180,27 @@ fn get_ray_collision_quad() {
     }
 }
 
-// #[test]
-// fn get_ray_collision_mesh() {
-//     let v3 = gen_vec5s();
-//     let mats = gen_vec16s();
+#[test]
+fn get_ray_collision_mesh() {
+    let v3 = gen_vec5s();
+    let mats = gen_vec16s();
 
-//     for (i, v) in v3.chunks(2).enumerate() {
+    for (i, v) in v3.chunks(2).enumerate() {
 
-//         let mut poly = gen_vec3_vecs();
-//         poly.truncate(ITERATIONS / ITER_DIV);
-//         let mut cpoly = vec![];
-//         for i in &poly {
-//             cpoly.push(craymath::Vector3{x: i[0].x, y: i[1].y, z: i[2].z});
-//             cpoly.push(craymath::Vector3{x: i[0].x, y: i[1].y, z: i[2].z});
-//             cpoly.push(craymath::Vector3{x: i[0].x, y: i[1].y, z: i[2].z});
-//         }
+        let mut poly = gen_vec3_vecs();
+        poly.truncate(ITERATIONS / ITER_DIV);
+        let mut cpoly = vec![];
+        for i in &poly {
+            cpoly.push(craymath::Vector3{x: i[0].x, y: i[1].y, z: i[2].z});
+            cpoly.push(craymath::Vector3{x: i[0].x, y: i[1].y, z: i[2].z});
+            cpoly.push(craymath::Vector3{x: i[0].x, y: i[1].y, z: i[2].z});
+        }
 
-//         let cres = unsafe {craymath::GetRayCollisionMesh(craymath::Ray { position: v[0].into(), direction: v[1].into() }, cpoly.as_mut_ptr(), cpoly.len() as u32, mats[i].into() )};
-//         let rres = raymath::get_ray_collision_mesh(raymath::Ray { position: v[0].into(), direction: v[1].into() }, poly, mats[i].into() );
-//         assert_eq!(cres, rres);
-//     }
-// }
+        let cres = unsafe {craymath::GetRayCollisionMesh(craymath::Ray { position: v[0].into(), direction: v[1].into() }, cpoly.as_mut_ptr(), cpoly.len() as u32, mats[i].into() )};
+        let rres = raymath::get_ray_collision_mesh(raymath::Ray { position: v[0].into(), direction: v[1].into() }, poly, mats[i].into() );
+        assert_eq!(cres, rres);
+    }
+}
 
 
 // RayCollision GetRayCollisionMesh(Ray ray, Vector3 * mesh, unsigned int mesh_len, Matrix transform);                       // Get collision info between ray and mesh
